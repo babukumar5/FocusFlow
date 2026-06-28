@@ -11,11 +11,16 @@ const app = express();
 
 // Middleware
 app.use(cors({
-  origin: ['http://localhost:5175', 'http://127.0.0.1:5175'],
+  origin: [
+    'http://localhost:5175',
+    'http://127.0.0.1:5175',
+    'https://focus-flow-five-neon.vercel.app'
+  ],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
 }));
+
 app.use(express.json());
 
 // Routes
