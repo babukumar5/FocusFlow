@@ -12,7 +12,7 @@ export const TaskProvider = ({ children }) => {
     if (!user) return;
     setLoading(true);
     try {
-      const res = await fetch('http://localhost:5001/api/tasks', {
+      const res = await fetch('https://focusflow-vo61.onrender.com/api/auth/login', {
         headers: {
           Authorization: `Bearer ${user.token}`,
         },
@@ -32,7 +32,7 @@ export const TaskProvider = ({ children }) => {
 
   const addTask = async (taskData) => {
     try {
-      const res = await fetch('http://localhost:5001/api/tasks', {
+      const res = await fetch("https://focusflow-vo61.onrender.com/api/auth/login", {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -49,7 +49,7 @@ export const TaskProvider = ({ children }) => {
 
   const updateTask = async (id, taskData) => {
     try {
-      const res = await fetch(`http://localhost:5001/api/tasks/${id}`, {
+      const res = await fetch(`https://focusflow-vo61.onrender.com/api/tasks/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -66,7 +66,7 @@ export const TaskProvider = ({ children }) => {
 
   const deleteTask = async (id) => {
     try {
-      await fetch(`http://localhost:5001/api/tasks/${id}`, {
+      await fetch(`https://focusflow-vo61.onrender.com/api/tasks/${id}`, {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${user.token}`,
