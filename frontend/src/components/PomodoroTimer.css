@@ -1,0 +1,134 @@
+.pomodoro-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px;
+  position: relative;
+  transition: all 0.5s ease;
+}
+
+.pomodoro-container.fullscreen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 9999;
+  border-radius: 0;
+  justify-content: center;
+  background: var(--bg-color); /* fallback */
+  backdrop-filter: blur(50px);
+}
+
+.fullscreen-btn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: transparent;
+  color: var(--text-secondary);
+  padding: 8px;
+  border-radius: 50%;
+}
+
+.fullscreen-btn:hover {
+  background: var(--glass-border);
+  color: var(--text-primary);
+}
+
+.mode-selector {
+  display: flex;
+  gap: 10px;
+  background: rgba(0,0,0,0.05);
+  padding: 5px;
+  border-radius: var(--radius-xl);
+  margin-bottom: 40px;
+}
+
+[data-theme='dark'] .mode-selector {
+  background: rgba(255,255,255,0.05);
+}
+
+.mode-btn {
+  background: transparent;
+  color: var(--text-secondary);
+  padding: 8px 16px;
+  border-radius: var(--radius-xl);
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.mode-btn.active {
+  background: var(--glass-bg);
+  color: var(--text-primary);
+  box-shadow: var(--glass-shadow);
+  border: 1px solid var(--glass-border);
+}
+
+.timer-circle-container {
+  position: relative;
+  width: 320px;
+  height: 320px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 40px;
+}
+
+.progress-ring {
+  transform: rotate(-90deg);
+  position: absolute;
+}
+
+.progress-ring__circle {
+  transition: stroke-dashoffset 1s linear, stroke 0.3s ease;
+  stroke-linecap: round;
+}
+
+.time-display {
+  font-size: 5rem;
+  font-weight: 700;
+  letter-spacing: -2px;
+  font-variant-numeric: tabular-nums;
+  z-index: 2;
+}
+
+.timer-controls {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.control-btn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  color: var(--text-primary);
+  box-shadow: var(--glass-shadow);
+}
+
+.control-btn:hover {
+  transform: scale(1.05);
+  background: rgba(255,255,255,0.8);
+}
+
+[data-theme='dark'] .control-btn:hover {
+  background: rgba(255,255,255,0.1);
+}
+
+.control-btn.primary {
+  width: 80px;
+  height: 80px;
+  background: var(--text-primary);
+  color: var(--bg-color);
+  border: none;
+}
+
+.control-btn.primary:hover {
+  transform: scale(1.05);
+  background: var(--text-secondary);
+}
