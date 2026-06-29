@@ -19,7 +19,7 @@ const Signup = () => {
     setError('');
 
     try {
-      const res = await fetch('https://focusflow-vo61.onrender.com/api/auth/login', {
+      const res = await fetch('https://focusflow-vo61.onrender.com/api/auth/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
