@@ -27,6 +27,14 @@ const taskSchema = new mongoose.Schema({
     type: String,
     default: 'General',
   },
+  tags: {
+    type: [String],
+    default: []
+  },
+  order: {
+    type: Number,
+    default: 0
+  },
   subtasks: [{
     title: String,
     completed: {

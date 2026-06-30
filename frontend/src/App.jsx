@@ -5,11 +5,12 @@ import Landing from './pages/Landing';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Dashboard from './pages/Dashboard';
+import ProfileSettings from './pages/ProfileSettings';
 import { AuthContext } from './context/AuthContext';
 
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = React.useContext(AuthContext);
-  if (loading) return <div>Loading...</div>;
+  if (loading) return <div className="loading-container"><div className="loader"></div></div>;
   return user ? children : <Navigate to="/login" />;
 };
 
@@ -28,6 +29,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <Dashboard />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/settings" 
+              element={
+                <ProtectedRoute>
+                  <ProfileSettings />
                 </ProtectedRoute>
               } 
             />

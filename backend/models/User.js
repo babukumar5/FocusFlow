@@ -14,6 +14,21 @@ const userSchema = new mongoose.Schema({
   password: {
     type: String,
     required: true,
+  },
+  avatar: {
+    type: String,
+    default: 'avatar1',
+  },
+  settings: {
+    focusTime: { type: Number, default: 25 },
+    shortBreakTime: { type: Number, default: 5 },
+    longBreakTime: { type: Number, default: 15 },
+    theme: { type: String, default: 'dark' },
+    soundType: { type: String, default: 'digital_watch' },
+    soundVolume: { type: Number, default: 0.8 },
+    browserNotifications: { type: Boolean, default: true },
+    autoStartBreaks: { type: Boolean, default: false },
+    autoStartTimers: { type: Boolean, default: false }
   }
 }, { timestamps: true });
 

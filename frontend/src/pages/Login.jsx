@@ -1,7 +1,12 @@
 import React, { useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
+import { KeyRound, Mail, Sparkles } from 'lucide-react';
 import './Auth.css';
+
+const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+  ? 'http://localhost:5001/api'
+  : 'https://focusflow-vo61.onrender.com/api';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -18,7 +23,7 @@ const Login = () => {
     setError('');
 
     try {
-      const res = await fetch('https://focusflow-vo61.onrender.com/api/auth/login', {
+      const res = await fetch(`${API_BASE}/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -42,43 +47,53 @@ const Login = () => {
   };
 
   return (
-    <div className="auth-container">
+    <div className="auth-container animate-fade-in">
       <div className="auth-card glass-panel">
-        <h2>Welcome Back</h2>
-        <p className="auth-subtitle">Log in to continue your focus journey</p>
+        <div className="auth-icon-badge">
+          <Sparkles size={20} className="sparkle-glow-icon" />
+        </div>
         
-        {error && <div className="auth-error">{error}</div>}
+        <h2>Welcome Back</h2>
+        <p className="auth-subtitle">Sign in to resume your focus journey</p>
+        
+        {error && <div className="message-banner error">{error}</div>}
 
         <form onSubmit={handleSubmit} className="auth-form">
           <div className="form-group">
             <label htmlFor="email">Email</label>
-            <input 
-              type="email" 
-              id="email" 
-              value={email} 
-              onChange={(e) => setEmail(e.target.value)} 
-              required 
-              placeholder="Enter your email"
-            />
+            <div className="auth-input-wrapper">
+              <Mail size={16} className="auth-field-icon" />
+              <input 
+                type="email" 
+                id="email" 
+                value={email} 
+                onChange={(e) => setEmail(e.target.value)} 
+                required 
+                placeholder="Enter your email"
+              />
+            </div>
           </div>
           <div className="form-group">
             <label htmlFor="password">Password</label>
-            <input 
-              type="password" 
-              id="password" 
-              value={password} 
-              onChange={(e) => setPassword(e.target.value)} 
-              required 
-              placeholder="Enter your password"
-            />
+            <div className="auth-input-wrapper">
+              <KeyRound size={16} className="auth-field-icon" />
+              <input 
+                type="password" 
+                id="password" 
+                value={password} 
+                onChange={(e) => setPassword(e.target.value)} 
+                required 
+                placeholder="Enter your password"
+              />
+            </div>
           </div>
           <button type="submit" className="btn-primary auth-submit" disabled={isLoading}>
-            {isLoading ? 'Logging in...' : 'Log In'}
+            {isLoading ? 'Logging in...' : 'Sign In'}
           </button>
         </form>
 
         <div className="auth-footer">
-          <p>Don't have an account? <Link to="/signup">Sign up</Link></p>
+          <p>Don't have an account? <Link to="/signup">Create one free</Link></p>
         </div>
       </div>
     </div>

@@ -1,101 +1,99 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import { AuthContext } from './AuthContext';
 
-export const TaskContext = createContext();
+export const HabitContext = createContext();
 
 const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
   ? 'http://localhost:5001/api'
   : 'https://focusflow-vo61.onrender.com/api';
 
-export const TaskProvider = ({ children }) => {
-  const [tasks, setTasks] = useState([]);
+export const HabitProvider = ({ children }) => {
+  const [habits, setHabits] = useState([]);
   const [loading, setLoading] = useState(false);
   const { user } = useContext(AuthContext);
 
-  const fetchTasks = async () => {
+  const fetchHabits = async () => {
     if (!user) return;
     setLoading(true);
     try {
-      const res = await fetch(`${API_BASE}/tasks`, {
+      const res = await fetch(`${API_BASE}/habits`, {
         headers: {
           Authorization: `Bearer ${user.token}`,
         },
       });
       if (res.ok) {
         const data = await res.json();
-        setTasks(data);
+        setHabits(data);
       }
     } catch (error) {
-      console.error('Error fetching tasks', error);
+      console.error('Error fetching habits', error);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchTasks();
+    fetchHabits();
   }, [user]);
 
-  const addTask = async (taskData) => {
+  const addHabit = async (habitData) => {
     if (!user) return;
     try {
-      const res = await fetch(`${API_BASE}/tasks`, {
+      const res = await fetch(`${API_BASE}/habits`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${user.token}`,
         },
-        body: JSON.stringify(taskData),
+        body: JSON.stringify(habitData),
       });
       if (res.ok) {
         const data = await res.json();
-        setTasks([data, ...tasks]);
+        setHabits([...habits, data]);
       }
     } catch (error) {
-      console.error('Error adding task', error);
+      console.error('Error adding habit', error);
     }
   };
 
-  const updateTask = async (id, taskData) => {
+  const toggleHabit = async (id) => {
     if (!user) return;
     try {
-      const res = await fetch(`${API_BASE}/tasks/${id}`, {
+      const res = await fetch(`${API_BASE}/habits/${id}`, {
         method: 'PUT',
         headers: {
-          'Content-Type': 'application/json',
           Authorization: `Bearer ${user.token}`,
         },
-        body: JSON.stringify(taskData),
       });
       if (res.ok) {
         const data = await res.json();
-        setTasks(tasks.map((task) => (task._id === id ? data : task)));
+        setHabits(habits.map(h => h._id === id ? data : h));
       }
     } catch (error) {
-      console.error('Error updating task', error);
+      console.error('Error toggling habit', error);
     }
   };
 
-  const deleteTask = async (id) => {
+  const deleteHabit = async (id) => {
     if (!user) return;
     try {
-      const res = await fetch(`${API_BASE}/tasks/${id}`, {
+      const res = await fetch(`${API_BASE}/habits/${id}`, {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${user.token}`,
         },
       });
       if (res.ok) {
-        setTasks(tasks.filter((task) => task._id !== id));
+        setHabits(habits.filter(h => h._id !== id));
       }
     } catch (error) {
-      console.error('Error deleting task', error);
+      console.error('Error deleting habit', error);
     }
   };
 
   return (
-    <TaskContext.Provider value={{ tasks, setTasks, loading, addTask, updateTask, deleteTask }}>
+    <HabitContext.Provider value={{ habits, loading, fetchHabits, addHabit, toggleHabit, deleteHabit }}>
       {children}
-    </TaskContext.Provider>
+    </HabitContext.Provider>
   );
 };

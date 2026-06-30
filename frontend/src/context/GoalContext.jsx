@@ -1,101 +1,101 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import { AuthContext } from './AuthContext';
 
-export const TaskContext = createContext();
+export const GoalContext = createContext();
 
 const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
   ? 'http://localhost:5001/api'
   : 'https://focusflow-vo61.onrender.com/api';
 
-export const TaskProvider = ({ children }) => {
-  const [tasks, setTasks] = useState([]);
+export const GoalProvider = ({ children }) => {
+  const [goals, setGoals] = useState([]);
   const [loading, setLoading] = useState(false);
   const { user } = useContext(AuthContext);
 
-  const fetchTasks = async () => {
+  const fetchGoals = async () => {
     if (!user) return;
     setLoading(true);
     try {
-      const res = await fetch(`${API_BASE}/tasks`, {
+      const res = await fetch(`${API_BASE}/goals`, {
         headers: {
           Authorization: `Bearer ${user.token}`,
         },
       });
       if (res.ok) {
         const data = await res.json();
-        setTasks(data);
+        setGoals(data);
       }
     } catch (error) {
-      console.error('Error fetching tasks', error);
+      console.error('Error fetching goals', error);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchTasks();
+    fetchGoals();
   }, [user]);
 
-  const addTask = async (taskData) => {
+  const addGoal = async (goalData) => {
     if (!user) return;
     try {
-      const res = await fetch(`${API_BASE}/tasks`, {
+      const res = await fetch(`${API_BASE}/goals`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${user.token}`,
         },
-        body: JSON.stringify(taskData),
+        body: JSON.stringify(goalData),
       });
       if (res.ok) {
         const data = await res.json();
-        setTasks([data, ...tasks]);
+        setGoals([...goals, data]);
       }
     } catch (error) {
-      console.error('Error adding task', error);
+      console.error('Error adding goal', error);
     }
   };
 
-  const updateTask = async (id, taskData) => {
+  const updateGoalProgress = async (id, currentValue) => {
     if (!user) return;
     try {
-      const res = await fetch(`${API_BASE}/tasks/${id}`, {
+      const res = await fetch(`${API_BASE}/goals/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${user.token}`,
         },
-        body: JSON.stringify(taskData),
+        body: JSON.stringify({ currentValue }),
       });
       if (res.ok) {
         const data = await res.json();
-        setTasks(tasks.map((task) => (task._id === id ? data : task)));
+        setGoals(goals.map(g => g._id === id ? data : g));
       }
     } catch (error) {
-      console.error('Error updating task', error);
+      console.error('Error updating goal progress', error);
     }
   };
 
-  const deleteTask = async (id) => {
+  const deleteGoal = async (id) => {
     if (!user) return;
     try {
-      const res = await fetch(`${API_BASE}/tasks/${id}`, {
+      const res = await fetch(`${API_BASE}/goals/${id}`, {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${user.token}`,
         },
       });
       if (res.ok) {
-        setTasks(tasks.filter((task) => task._id !== id));
+        setGoals(goals.filter(g => g._id !== id));
       }
     } catch (error) {
-      console.error('Error deleting task', error);
+      console.error('Error deleting goal', error);
     }
   };
 
   return (
-    <TaskContext.Provider value={{ tasks, setTasks, loading, addTask, updateTask, deleteTask }}>
+    <GoalContext.Provider value={{ goals, loading, fetchGoals, addGoal, updateGoalProgress, deleteGoal }}>
       {children}
-    </TaskContext.Provider>
+    </GoalContext.Provider>
   );
 };

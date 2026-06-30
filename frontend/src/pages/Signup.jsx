@@ -1,7 +1,12 @@
 import React, { useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
+import { User, Mail, KeyRound, Sparkles } from 'lucide-react';
 import './Auth.css';
+
+const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+  ? 'http://localhost:5001/api'
+  : 'https://focusflow-vo61.onrender.com/api';
 
 const Signup = () => {
   const [name, setName] = useState('');
@@ -19,7 +24,7 @@ const Signup = () => {
     setError('');
 
     try {
-      const res = await fetch('https://focusflow-vo61.onrender.com/api/auth/register', {
+      const res = await fetch(`${API_BASE}/auth/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -43,46 +48,59 @@ const Signup = () => {
   };
 
   return (
-    <div className="auth-container">
+    <div className="auth-container animate-fade-in">
       <div className="auth-card glass-panel">
+        <div className="auth-icon-badge">
+          <Sparkles size={20} className="sparkle-glow-icon" />
+        </div>
+
         <h2>Create Account</h2>
-        <p className="auth-subtitle">Start your productivity journey today</p>
+        <p className="auth-subtitle">Begin your productivity journey today</p>
         
-        {error && <div className="auth-error">{error}</div>}
+        {error && <div className="message-banner error">{error}</div>}
 
         <form onSubmit={handleSubmit} className="auth-form">
           <div className="form-group">
             <label htmlFor="name">Name</label>
-            <input 
-              type="text" 
-              id="name" 
-              value={name} 
-              onChange={(e) => setName(e.target.value)} 
-              required 
-              placeholder="Enter your name"
-            />
+            <div className="auth-input-wrapper">
+              <User size={16} className="auth-field-icon" />
+              <input 
+                type="text" 
+                id="name" 
+                value={name} 
+                onChange={(e) => setName(e.target.value)} 
+                required 
+                placeholder="Enter your name"
+              />
+            </div>
           </div>
           <div className="form-group">
             <label htmlFor="email">Email</label>
-            <input 
-              type="email" 
-              id="email" 
-              value={email} 
-              onChange={(e) => setEmail(e.target.value)} 
-              required 
-              placeholder="Enter your email"
-            />
+            <div className="auth-input-wrapper">
+              <Mail size={16} className="auth-field-icon" />
+              <input 
+                type="email" 
+                id="email" 
+                value={email} 
+                onChange={(e) => setEmail(e.target.value)} 
+                required 
+                placeholder="Enter your email"
+              />
+            </div>
           </div>
           <div className="form-group">
             <label htmlFor="password">Password</label>
-            <input 
-              type="password" 
-              id="password" 
-              value={password} 
-              onChange={(e) => setPassword(e.target.value)} 
-              required 
-              placeholder="Create a password"
-            />
+            <div className="auth-input-wrapper">
+              <KeyRound size={16} className="auth-field-icon" />
+              <input 
+                type="password" 
+                id="password" 
+                value={password} 
+                onChange={(e) => setPassword(e.target.value)} 
+                required 
+                placeholder="Create a password"
+              />
+            </div>
           </div>
           <button type="submit" className="btn-primary auth-submit" disabled={isLoading}>
             {isLoading ? 'Creating Account...' : 'Sign Up'}
