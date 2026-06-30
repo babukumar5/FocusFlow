@@ -6,6 +6,7 @@ import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Dashboard from './pages/Dashboard';
 import ProfileSettings from './pages/ProfileSettings';
+import History from './pages/History';
 import { AuthContext } from './context/AuthContext';
 
 const ProtectedRoute = ({ children }) => {
@@ -37,6 +38,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <ProfileSettings />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/history" 
+              element={
+                <ProtectedRoute>
+                  <History />
                 </ProtectedRoute>
               } 
             />

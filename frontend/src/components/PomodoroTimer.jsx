@@ -1,166 +1,33 @@
-import React, { useState, useEffect, useRef, useContext } from 'react';
+import React, { useRef } from 'react';
 import { Play, Pause, RotateCcw, SkipForward, Maximize, Minimize, Sparkles } from 'lucide-react';
-import { AuthContext } from '../context/AuthContext';
-import { FocusContext } from '../context/FocusContext';
+import usePomodoro from '../hooks/usePomodoro';
 import './PomodoroTimer.css';
 
-const SOUND_PRESETS = {
-  digital_watch: 'https://actions.google.com/sounds/v1/alarms/digital_watch_alarm_long.ogg',
-  chime: 'https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg',
-  gong: 'https://actions.google.com/sounds/v1/ambiences/gong.ogg',
-  bell: 'https://actions.google.com/sounds/v1/clock/bell_chime.ogg',
-};
-
 const PomodoroTimer = () => {
-  const { user } = useContext(AuthContext);
-  const { logSession } = useContext(FocusContext);
+  const {
+    mode,
+    timeLeft,
+    isActive,
+    totalDuration,
+    isFullscreen,
+    isImmersiveFocus,
+    isCustomMode,
+    customFocus,
+    customShort,
+    customLong,
+    toggleTimer,
+    resetTimer,
+    skipTimer,
+    switchMode,
+    toggleFullscreen,
+    toggleImmersiveFocus,
+    setIsCustomMode,
+    setCustomFocus,
+    setCustomShort,
+    setCustomLong
+  } = usePomodoro();
 
-  const settings = user?.settings || {
-    focusTime: 25,
-    shortBreakTime: 5,
-    longBreakTime: 15,
-    soundType: 'digital_watch',
-    soundVolume: 0.8,
-    browserNotifications: true,
-    autoStartBreaks: false,
-    autoStartTimers: false
-  };
-
-  const [mode, setMode] = useState('FOCUS'); // FOCUS, SHORT_BREAK, LONG_BREAK
-  const [timeLeft, setTimeLeft] = useState(settings.focusTime * 60);
-  const [isActive, setIsActive] = useState(false);
-  const [isFullscreen, setIsFullscreen] = useState(false);
-  const [isImmersiveFocus, setIsImmersiveFocus] = useState(false); // Immersive Focus Mode
-  
-  // Custom Timer Settings
-  const [isCustomMode, setIsCustomMode] = useState(false);
-  const [customFocus, setCustomFocus] = useState(25);
-  const [customShort, setCustomShort] = useState(5);
-  const [customLong, setCustomLong] = useState(15);
-
-  const timerRef = useRef(null);
   const containerRef = useRef(null);
-
-  // Sync timing dynamically with settings/mode
-  const getModeDuration = (currentMode) => {
-    if (isCustomMode) {
-      if (currentMode === 'FOCUS') return customFocus * 60;
-      if (currentMode === 'SHORT_BREAK') return customShort * 60;
-      if (currentMode === 'LONG_BREAK') return customLong * 60;
-    } else {
-      if (currentMode === 'FOCUS') return settings.focusTime * 60;
-      if (currentMode === 'SHORT_BREAK') return settings.shortBreakTime * 60;
-      if (currentMode === 'LONG_BREAK') return settings.longBreakTime * 60;
-    }
-    return 25 * 60;
-  };
-
-  useEffect(() => {
-    if (!isActive) {
-      setTimeLeft(getModeDuration(mode));
-    }
-  }, [settings.focusTime, settings.shortBreakTime, settings.longBreakTime, mode, isCustomMode, customFocus, customShort, customLong]);
-
-  // Tick logic
-  useEffect(() => {
-    if (isActive && timeLeft > 0) {
-      timerRef.current = setInterval(() => {
-        setTimeLeft((prev) => prev - 1);
-      }, 1000);
-    } else if (timeLeft === 0) {
-      handleComplete();
-    }
-
-    return () => clearInterval(timerRef.current);
-  }, [isActive, timeLeft]);
-
-  const handleComplete = () => {
-    clearInterval(timerRef.current);
-    setIsActive(false);
-    
-    // Play alert sound
-    playNotificationSound();
-
-    // Trigger OS browser notification
-    if (settings.browserNotifications && Notification.permission === 'granted') {
-      new Notification('Timer Finished!', {
-        body: mode === 'FOCUS' ? 'Great work! Take a break.' : 'Break is over! Let\'s get back to work.',
-        icon: '/favicon.ico'
-      });
-    }
-
-    // Log Focus Session if complete
-    if (mode === 'FOCUS') {
-      const actualDuration = isCustomMode ? customFocus : settings.focusTime;
-      logSession({
-        duration: actualDuration,
-        completed: true
-      });
-    }
-
-    // Auto transitions
-    let nextMode = 'FOCUS';
-    if (mode === 'FOCUS') {
-      nextMode = 'SHORT_BREAK';
-    }
-
-    setMode(nextMode);
-    setTimeLeft(getModeDuration(nextMode));
-
-    // Handle auto-start
-    if (nextMode === 'FOCUS' && settings.autoStartTimers) {
-      setTimeout(() => setIsActive(true), 500);
-    } else if (nextMode !== 'FOCUS' && settings.autoStartBreaks) {
-      setTimeout(() => setIsActive(true), 500);
-    }
-  };
-
-  const playNotificationSound = () => {
-    const soundUrl = SOUND_PRESETS[settings.soundType] || SOUND_PRESETS.digital_watch;
-    const audio = new Audio(soundUrl);
-    audio.volume = settings.soundVolume !== undefined ? settings.soundVolume : 0.8;
-    audio.play().catch(e => console.log('Audio playing blocked by browser:', e));
-  };
-
-  const toggleTimer = () => {
-    if (!isActive && settings.browserNotifications && Notification.permission === 'default') {
-      Notification.requestPermission();
-    }
-    setIsActive(!isActive);
-  };
-
-  const resetTimer = () => {
-    setIsActive(false);
-    setTimeLeft(getModeDuration(mode));
-  };
-
-  const skipTimer = () => {
-    handleComplete();
-  };
-
-  const switchMode = (newMode) => {
-    setMode(newMode);
-    setTimeLeft(getModeDuration(newMode));
-    setIsActive(false);
-  };
-
-  const toggleFullscreen = () => {
-    if (!document.fullscreenElement) {
-      containerRef.current.requestFullscreen().catch(err => {
-        console.error(`Error attempting to enable fullscreen mode: ${err.message}`);
-      });
-    } else {
-      document.exitFullscreen();
-    }
-  };
-
-  useEffect(() => {
-    const handleFullscreenChange = () => {
-      setIsFullscreen(!!document.fullscreenElement);
-    };
-    document.addEventListener('fullscreenchange', handleFullscreenChange);
-    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
-  }, []);
 
   const formatTime = (seconds) => {
     const m = Math.floor(seconds / 60);
@@ -174,18 +41,12 @@ const PomodoroTimer = () => {
     return 'var(--warning-color)';
   };
 
-  const totalModeDuration = getModeDuration(mode);
-  const progress = totalModeDuration > 0 ? ((totalModeDuration - timeLeft) / totalModeDuration) * 100 : 0;
+  const progress = totalDuration > 0 ? ((totalDuration - timeLeft) / totalDuration) * 100 : 0;
   
   // Progress Ring configurations
   const radius = 120;
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference - (circumference * progress) / 100;
-
-  // Immersive Focus Mode toggler
-  const toggleImmersiveFocus = () => {
-    setIsImmersiveFocus(!isImmersiveFocus);
-  };
 
   return (
     <div 

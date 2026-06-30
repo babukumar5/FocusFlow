@@ -7,12 +7,33 @@ const focusSessionSchema = new mongoose.Schema({
     ref: 'User',
   },
   duration: {
-    type: Number, // in minutes
+    type: Number, // planned duration in minutes
     required: true,
   },
-  completed: {
+  actualCompletedMinutes: {
+    type: Number, // actual completed focus minutes
+    required: true,
+  },
+  startTime: {
+    type: Date,
+    required: true,
+  },
+  endTime: {
+    type: Date,
+    required: true,
+  },
+  date: {
+    type: Date,
+    required: true,
+  },
+  mode: {
+    type: String,
+    enum: ['focus', 'short break', 'long break'],
+    required: true,
+  },
+  interrupted: {
     type: Boolean,
-    default: true,
+    default: false,
   },
   task: {
     type: mongoose.Schema.Types.ObjectId,

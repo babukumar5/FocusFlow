@@ -1,11 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const { logFocusSession, getFocusStats } = require('../controllers/focusController');
+const { createFocusSession, getFocusHistory, deleteFocusSession, getFocusStats } = require('../controllers/focusController');
 const { protect } = require('../middleware/auth');
 
-router.route('/')
-  .post(protect, logFocusSession);
-
+router.post('/session', protect, createFocusSession);
+router.get('/history', protect, getFocusHistory);
+router.delete('/session/:id', protect, deleteFocusSession);
 router.get('/stats', protect, getFocusStats);
 
 module.exports = router;

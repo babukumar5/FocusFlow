@@ -14,7 +14,44 @@
 .header-user-profile {
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.header-user-main {
+  display: flex;
+  align-items: center;
   gap: 20px;
+}
+
+.header-streak-badge-row {
+  display: flex;
+  gap: 10px;
+}
+
+.streak-badge {
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(10px);
+}
+
+.streak-badge.current {
+  background: rgba(255, 149, 0, 0.1);
+  color: #ff9500;
+  border-color: rgba(255, 149, 0, 0.3);
+  box-shadow: 0 0 10px rgba(255, 149, 0, 0.1);
+}
+
+.streak-badge.longest {
+  background: rgba(255, 214, 10, 0.1);
+  color: #ffd60a;
+  border-color: rgba(255, 214, 10, 0.3);
+  box-shadow: 0 0 10px rgba(255, 214, 10, 0.1);
 }
 
 .header-avatar-circle {

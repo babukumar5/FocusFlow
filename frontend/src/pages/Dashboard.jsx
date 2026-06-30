@@ -6,6 +6,7 @@ import ProductivityStats from '../components/ProductivityStats';
 import HabitTracker from '../components/HabitTracker';
 import GoalTracker from '../components/GoalTracker';
 import CalendarView from '../components/CalendarView';
+import useStreak from '../hooks/useStreak';
 import { Sparkles, Calendar, Target, Flame } from 'lucide-react';
 import './Dashboard.css';
 
@@ -23,6 +24,7 @@ const PRESET_AVATARS = {
 const Dashboard = () => {
   const { user } = useContext(AuthContext);
   const [activeWidgetTab, setActiveWidgetTab] = useState('habits'); // 'habits', 'goals', 'calendar'
+  const { currentStreak, longestStreak } = useStreak();
 
   const renderAvatar = () => {
     if (!user || !user.avatar) return '🧘';
@@ -44,12 +46,23 @@ const Dashboard = () => {
       {/* Welcome Banner */}
       <header className="dashboard-header glass-panel">
         <div className="header-user-profile">
-          <div className="header-avatar-circle">
-            {renderAvatar()}
+          <div className="header-user-main">
+            <div className="header-avatar-circle">
+              {renderAvatar()}
+            </div>
+            <div>
+              <h1>{getGreeting()}, {user?.name || 'Achiever'} <Sparkles className="sparkle-icon" size={18} /></h1>
+              <p className="subtitle">Let's craft some flow state today.</p>
+            </div>
           </div>
-          <div>
-            <h1>{getGreeting()}, {user?.name || 'Achiever'} <Sparkles className="sparkle-icon" size={18} /></h1>
-            <p className="subtitle">Let's craft some flow state today.</p>
+
+          <div className="header-streak-badge-row">
+            <span className="streak-badge current" title="Current streak">
+              🔥 {currentStreak} Day Streak
+            </span>
+            <span className="streak-badge longest" title="Longest streak">
+              🏆 Record: {longestStreak}
+            </span>
           </div>
         </div>
       </header>

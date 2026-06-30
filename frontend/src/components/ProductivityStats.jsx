@@ -8,14 +8,21 @@ import {
   Tooltip,
   ResponsiveContainer
 } from 'recharts';
-import { FocusContext } from '../context/FocusContext';
+import useStatistics from '../hooks/useStatistics';
 import { TaskContext } from '../context/TaskContext';
 import { ThemeContext } from '../context/ThemeContext';
-import { Clock, CheckCircle2, TrendingUp, BarChart } from 'lucide-react';
+import { Clock, TrendingUp, CheckCircle2, BarChart } from 'lucide-react';
 import './ProductivityStats.css';
 
 const ProductivityStats = () => {
-  const { stats } = useContext(FocusContext);
+  const {
+    focusedToday,
+    totalLifetimeFocus,
+    completedSessions,
+    charts,
+    loading
+  } = useStatistics();
+
   const { tasks } = useContext(TaskContext);
   const { isDark } = useContext(ThemeContext);
   const [filterType, setFilterType] = useState('daily'); // 'daily', 'weekly', 'monthly'
@@ -24,10 +31,10 @@ const ProductivityStats = () => {
   const gridColor = isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)';
 
   const getChartData = () => {
-    if (!stats || !stats.charts) return [];
-    if (filterType === 'daily') return stats.charts.daily || [];
-    if (filterType === 'weekly') return stats.charts.weekly || [];
-    return stats.charts.monthly || [];
+    if (!charts) return [];
+    if (filterType === 'daily') return charts.daily || [];
+    if (filterType === 'weekly') return charts.weekly || [];
+    return charts.monthly || [];
   };
 
   const getCompletedTasksCount = () => {
@@ -46,7 +53,7 @@ const ProductivityStats = () => {
         <div className="mini-metric-card glass-panel">
           <Clock size={16} className="metric-icon accent" />
           <div className="metric-info">
-            <span className="metric-val">{formatHours(stats?.todayMinutes)}</span>
+            <span className="metric-val">{formatHours(focusedToday)}</span>
             <span className="metric-lbl">Focused Today</span>
           </div>
         </div>
@@ -54,7 +61,7 @@ const ProductivityStats = () => {
         <div className="mini-metric-card glass-panel">
           <TrendingUp size={16} className="metric-icon warning" />
           <div className="metric-info">
-            <span className="metric-val">{formatHours(stats?.totalMinutes)}</span>
+            <span className="metric-val">{formatHours(totalLifetimeFocus)}</span>
             <span className="metric-lbl">Total Focus</span>
           </div>
         </div>
@@ -70,7 +77,7 @@ const ProductivityStats = () => {
         <div className="mini-metric-card glass-panel">
           <BarChart size={16} className="metric-icon info" />
           <div className="metric-info">
-            <span className="metric-val">{stats?.totalSessions || 0}</span>
+            <span className="metric-val">{completedSessions}</span>
             <span className="metric-lbl">Sessions Logged</span>
           </div>
         </div>
@@ -106,51 +113,57 @@ const ProductivityStats = () => {
         </div>
 
         <div className="recharts-chart-wrapper">
-          <ResponsiveContainer width="100%" height="100%">
-            <AreaChart
-              data={getChartData()}
-              margin={{ top: 10, right: 10, left: -25, bottom: 0 }}
-            >
-              <defs>
-                <linearGradient id="colorFocus" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="var(--accent-color)" stopOpacity={0.4}/>
-                  <stop offset="95%" stopColor="var(--accent-color)" stopOpacity={0}/>
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={gridColor} />
-              <XAxis 
-                dataKey="name" 
-                axisLine={false} 
-                tickLine={false} 
-                tick={{ fill: textColor, fontSize: 11 }} 
-              />
-              <YAxis 
-                axisLine={false} 
-                tickLine={false} 
-                tick={{ fill: textColor, fontSize: 11 }} 
-              />
-              <Tooltip 
-                cursor={{ stroke: 'rgba(255,255,255,0.05)', strokeWidth: 1 }} 
-                contentStyle={{ 
-                  backgroundColor: 'var(--glass-bg)', 
-                  borderRadius: '12px',
-                  border: '1px solid var(--glass-border)',
-                  boxShadow: 'var(--glass-shadow)',
-                  color: 'var(--text-primary)',
-                  backdropFilter: 'blur(20px)'
-                }} 
-              />
-              <Area 
-                type="monotone" 
-                dataKey="focusTime" 
-                name="Focus Minutes"
-                stroke="var(--accent-color)" 
-                strokeWidth={2}
-                fillOpacity={1} 
-                fill="url(#colorFocus)" 
-              />
-            </AreaChart>
-          </ResponsiveContainer>
+          {loading ? (
+            <div className="table-loader-state" style={{ height: '100%' }}>
+              <div className="loader"></div>
+            </div>
+          ) : (
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart
+                data={getChartData()}
+                margin={{ top: 10, right: 10, left: -25, bottom: 0 }}
+              >
+                <defs>
+                  <linearGradient id="colorFocus" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="var(--accent-color)" stopOpacity={0.4}/>
+                    <stop offset="95%" stopColor="var(--accent-color)" stopOpacity={0}/>
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={gridColor} />
+                <XAxis 
+                  dataKey="name" 
+                  axisLine={false} 
+                  tickLine={false} 
+                  tick={{ fill: textColor, fontSize: 11 }} 
+                />
+                <YAxis 
+                  axisLine={false} 
+                  tickLine={false} 
+                  tick={{ fill: textColor, fontSize: 11 }} 
+                />
+                <Tooltip 
+                  cursor={{ stroke: 'rgba(255,255,255,0.05)', strokeWidth: 1 }} 
+                  contentStyle={{ 
+                    backgroundColor: 'var(--glass-bg)', 
+                    borderRadius: '12px',
+                    border: '1px solid var(--glass-border)',
+                    boxShadow: 'var(--glass-shadow)',
+                    color: 'var(--text-primary)',
+                    backdropFilter: 'blur(20px)'
+                  }} 
+                />
+                <Area 
+                  type="monotone" 
+                  dataKey="focusTime" 
+                  name="Focus Minutes"
+                  stroke="var(--accent-color)" 
+                  strokeWidth={2}
+                  fillOpacity={1} 
+                  fill="url(#colorFocus)" 
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          )}
         </div>
       </div>
     </div>

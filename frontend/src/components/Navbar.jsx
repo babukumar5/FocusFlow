@@ -61,6 +61,12 @@ const Navbar = () => {
               Dashboard
             </Link>
             <Link 
+              to="/history" 
+              className={`nav-link ${location.pathname === '/history' ? 'active' : ''}`}
+            >
+              History
+            </Link>
+            <Link 
               to="/settings" 
               className={`nav-link settings-nav-link ${location.pathname === '/settings' ? 'active' : ''}`}
               title="Settings"

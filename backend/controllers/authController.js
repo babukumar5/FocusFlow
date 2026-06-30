@@ -7,6 +7,24 @@ const generateToken = (id) => {
   });
 };
 
+// Check if user missed a day and reset currentStreak to 0
+const checkAndResetStreak = async (user) => {
+  if (user && user.streak && user.streak.lastActiveDate) {
+    const today = new Date();
+    const todayMidnight = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    const lastActive = new Date(user.streak.lastActiveDate);
+    const lastActiveMidnight = new Date(lastActive.getFullYear(), lastActive.getMonth(), lastActive.getDate());
+
+    const diffTime = Math.abs(todayMidnight - lastActiveMidnight);
+    const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+
+    if (diffDays > 1) {
+      user.streak.currentStreak = 0;
+      await user.save();
+    }
+  }
+};
+
 exports.registerUser = async (req, res) => {
   const { name, email, password } = req.body;
 
@@ -21,6 +39,7 @@ exports.registerUser = async (req, res) => {
       name,
       email,
       password,
+      streak: { currentStreak: 0, longestStreak: 0, lastActiveDate: null }
     });
 
     if (user) {
@@ -30,6 +49,7 @@ exports.registerUser = async (req, res) => {
         email: user.email,
         avatar: user.avatar,
         settings: user.settings,
+        streak: user.streak,
         token: generateToken(user._id),
       });
     } else {
@@ -47,12 +67,14 @@ exports.loginUser = async (req, res) => {
     const user = await User.findOne({ email });
 
     if (user && (await user.matchPassword(password))) {
+      await checkAndResetStreak(user);
       res.json({
         _id: user._id,
         name: user.name,
         email: user.email,
         avatar: user.avatar,
         settings: user.settings,
+        streak: user.streak,
         token: generateToken(user._id),
       });
     } else {
@@ -68,12 +90,14 @@ exports.getUserProfile = async (req, res) => {
     const user = await User.findById(req.user._id);
 
     if (user) {
+      await checkAndResetStreak(user);
       res.json({
         _id: user._id,
         name: user.name,
         email: user.email,
         avatar: user.avatar,
         settings: user.settings,
+        streak: user.streak,
       });
     } else {
       res.status(404).json({ message: 'User not found' });
@@ -98,12 +122,14 @@ exports.updateUserProfile = async (req, res) => {
       }
 
       const updatedUser = await user.save();
+      await checkAndResetStreak(updatedUser);
       res.json({
         _id: updatedUser._id,
         name: updatedUser.name,
         email: updatedUser.email,
         avatar: updatedUser.avatar,
         settings: updatedUser.settings,
+        streak: updatedUser.streak,
         token: generateToken(updatedUser._id),
       });
     } else {
@@ -128,6 +154,7 @@ exports.updateUserSettings = async (req, res) => {
         email: updatedUser.email,
         avatar: updatedUser.avatar,
         settings: updatedUser.settings,
+        streak: updatedUser.streak,
       });
     } else {
       res.status(404).json({ message: 'User not found' });

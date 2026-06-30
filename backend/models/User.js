@@ -29,6 +29,11 @@ const userSchema = new mongoose.Schema({
     browserNotifications: { type: Boolean, default: true },
     autoStartBreaks: { type: Boolean, default: false },
     autoStartTimers: { type: Boolean, default: false }
+  },
+  streak: {
+    currentStreak: { type: Number, default: 0 },
+    longestStreak: { type: Number, default: 0 },
+    lastActiveDate: { type: Date, default: null }
   }
 }, { timestamps: true });
 
